@@ -1,0 +1,15 @@
+{
+    "name": "jwz104/bitcoin-accounts",
+    "description": "A bitcoin account system",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Jan Wytze",
+            "email": "jwzuid@live.nl"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "nbobtc/bitcoind-php": "^2.0"
+    }
+}
