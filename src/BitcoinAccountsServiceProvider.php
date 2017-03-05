@@ -1,6 +1,6 @@
 <?php
 
-namespace jwz104\Bitcoin;
+namespace Jwz104\BitcoinAccounts;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -16,11 +16,11 @@ class BitcoinAccountsServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(__DIR__.'/database/migrations');
 
         //Register BitcoinAccount facade
-        $this->app->bind('BitcoinAccounts', 'jwz104\Bitcoin\BitcoinAccounts');
+        $this->app->bind('BitcoinAccounts', 'Jwz104\Bitcoin\BitcoinAccounts');
         //Register kernel for scheduled tasks
 	$this->app->singleton('jwz104.bitcoin.console.kernel', function($app) {
 	    $dispatcher = $app->make(\Illuminate\Contracts\Events\Dispatcher::class);
-	    return new \jwz104\Bitcoin\Console\Kernel($app, $dispatcher);
+	    return new \Jwz104\BitcoinAccounts\Console\Kernel($app, $dispatcher);
 	});
 
 	$this->app->make('jwz104.bitcoin.console.kernel');

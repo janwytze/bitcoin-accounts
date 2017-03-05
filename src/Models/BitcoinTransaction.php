@@ -1,6 +1,6 @@
 <?php
 
-namespace jwz104\Bitcoin\Models;
+namespace Jwz104\BitcoinAccounts\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,6 +14,6 @@ class BitcoinTransaction extends Model
 
     public function bitcoinuser()
     {
-        return $this->belongsTo('jwz104\Bitcoin\BitcoinUser', 'bitcoin_account_id', 'id');
+        return $this->belongsTo('Jwz104\BitcoinAccounts\BitcoinUser', 'bitcoin_account_id', 'id');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace jwz104\Bitcoin\Models;
+namespace Jwz104\BitcoinAccounts\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,21 +25,21 @@ class BitcoinUser extends Model
     /**
      * The addresses of the user
      *
-     * @return jwz104\Bitcoin\BitcoinAddress[]
+     * @return Jwz104\BitcoinAccounts\BitcoinAddress[]
      */
     public function addresses()
     {
-        return $this->hasMany('jwz104\Bitcoin\BitcoinAddress', 'bitcoin_user_id', 'id');
+        return $this->hasMany('Jwz104\BitcoinAccounts\BitcoinAddress', 'bitcoin_user_id', 'id');
     }
     
     /**
      * The transactions of the user
      *
-     * @return jwz104\Bitcoin\BitcoinTransaction[]
+     * @return Jwz104\Bitcoin\BitcoinTransaction[]
      */
     public function transactions()
     {
-        return $this->hasMany('jwz104\Bitcoin\BitcoinTransaction', 'bitcoin_user_id', 'id')->orWhere('other_bitcoin_user_id', $this->id);
+        return $this->hasMany('Jwz104\BitcoinAccounts\BitcoinTransaction', 'bitcoin_user_id', 'id')->orWhere('other_bitcoin_user_id', $this->id);
     }
 
     /**

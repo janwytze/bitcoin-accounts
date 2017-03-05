@@ -1,6 +1,6 @@
 <?php
 
-namespace jwz104\Bitcoin\Facades;
+namespace Jwz104\BitcoinAccounts\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

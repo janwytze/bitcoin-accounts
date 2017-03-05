@@ -1,10 +1,10 @@
 <?php
 
-namespace jwz104\Bitcoin\Transaction;
+namespace Jwz104\BitcoinAccounts\Transaction;
 
-use jwz104\Bitcoin\Models\BitcoinUser;
-use jwz104\Bitcoin\Models\BitcoinAddress;
-use jwz104\Bitcoin\Models\BitcoinTransaction;
+use Jwz104\BitcoinAccounts\Models\BitcoinUser;
+use Jwz104\BitcoinAccounts\Models\BitcoinAddress;
+use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
 use BitcoinAccounts;
 
@@ -27,7 +27,7 @@ class Transaction {
     /**
      * The bitcoin user
      *
-     * @var jwz104\Bitcoin\Models\BitcoinUser
+     * @var Jwz104\BitcoinAccounts\Models\BitcoinUser
      */
     protected $bitcoinuser;
 
@@ -41,7 +41,7 @@ class Transaction {
     /**
      * Instantiate a new Transaction instance.
      *
-     * @param $bitcoinser jwz104\Bitcoin\Models\BitcoinUser The bitcoin user
+     * @param $bitcoinser Jwz104\BitcoinAccounts\Models\BitcoinUser The bitcoin user
      * @param $address string The destination address
      * @param $amount double The amount of bitcoins
      * @return void

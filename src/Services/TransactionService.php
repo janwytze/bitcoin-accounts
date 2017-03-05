@@ -1,23 +1,23 @@
 <?php
 
-namespace jwz104\Bitcoin\Services;
+namespace Jwz104\BitcoinAccounts\Services;
 
-use jwz104\Bitcoin\Models\BitcoinUser;
-use jwz104\Bitcoin\Models\BitcoinTransaction;
+use Jwz104\BitcoinAccounts\Models\BitcoinUser;
+use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
 class TransactionService {
 
     /**
      * The bitcoin user
      *
-     * @var jwz104\Bitcoin\Models\BitcoinUser
+     * @var Jwz104\BitcoinAccounts\Models\BitcoinUser
      */
     protected $bitcoinuser;
 
     /**
      * Instantiate a new HomepageController instance.
      *
-     * @param $user jwz104\Bitcoin\Models\BitcoinUser The bitcoin user
+     * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser The bitcoin user
      * @return void
      */
     public function __construct(BitcoinUser $user)
@@ -28,7 +28,7 @@ class TransactionService {
     /**
      * Transfer to account and return true is success
      *
-     * @param $user jwz104\Bitcoin\Models\BitcoinUser The user to pay
+     * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser The user to pay
      * @param $amount double The amount of bitcoins to send
      * @return bool
      */

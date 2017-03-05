@@ -1,10 +1,10 @@
 <?php
-namespace jwz104\Bitcoin\Console;
+namespace Jwz104\BitcoinAccounts\Console;
 
 use App\Console\Kernel as ConsoleKernel;
 use Illuminate\Console\Scheduling\Schedule;
 
-use jwz104\Bitcoin\Jobs\LoadTransactionsJob;
+use Jwz104\BitcoinAccounts\Jobs\LoadTransactionsJob;
 
 class Kernel extends ConsoleKernel
 {

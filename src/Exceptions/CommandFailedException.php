@@ -1,6 +1,6 @@
 <?php
 
-namespace jwz104\Bitcoin\Exceptions;
+namespace Jwz104\BitcoinAccounts\Exceptions;
 
 class CommandFailedException extends \Exception {
 

@@ -1,12 +1,12 @@
 <?php
 
-namespace jwz104\Bitcoin;
+namespace Jwz104\BitcoinAccounts;
 
-use jwz104\Bitcoin\Exceptions;
+use Jwz104\BitcoinAccounts\Exceptions;
 
-use jwz104\Bitcoin\Models\BitcoinUser;
-use jwz104\Bitcoin\Models\BitcoinAddress;
-use jwz104\Bitcoin\Models\BitcoinTransaction;
+use Jwz104\BitcoinAccounts\Models\BitcoinUser;
+use Jwz104\BitcoinAccounts\Models\BitcoinAddress;
+use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
 class BitcoinAccounts {
 
@@ -73,7 +73,7 @@ class BitcoinAccounts {
      * Find an account by name
      *
      * @param $name string The account name
-     * @return jwz104\Bitcoin\Models\BitcoinUser
+     * @return Jwz104\BitcoinAccounts\Models\BitcoinUser
      */
     public function getAccount($name)
     {
@@ -84,7 +84,7 @@ class BitcoinAccounts {
      * Find an account by id
      *
      * @param $id int The account id
-     * @return jwz104\Bitcoin\Models\BitcoinUser
+     * @return Jwz104\BitcoinAccounts\Models\BitcoinUser
      */
     public function findAccount($id)
     {
@@ -129,8 +129,8 @@ class BitcoinAccounts {
     /**
      * Set the user for an address and return true is successfull
      *
-     * @param $user jwz104\Bitcoin\Models\BitcoinUser
-     * @param $address jwz104\Bitcoin\Models\BitcoinAddress
+     * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser
+     * @param $address Jwz104\BitcoinAccounts\Models\BitcoinAddress
      * @return bool
      */
     public function setAddressUser(BitcoinUser $user, BitcoinAddress $address)

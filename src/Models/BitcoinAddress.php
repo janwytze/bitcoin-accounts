@@ -1,6 +1,6 @@
 <?php
 
-namespace jwz104\Bitcoin\Models;
+namespace Jwz104\BitcoinAccounts\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,20 +25,20 @@ class BitcoinAddress extends Model
     /**
      * The bitcoin user
      *
-     * @return jwz104\Bitcoin\BitcoinUser
+     * @return Jwz104\BitcoinAccounts\BitcoinUser
      */
     public function user()
     {
-        return $this->belongsTo('jwz104\Bitcoin\BitcoinUser', 'bitcoin_account_id', 'id');
+        return $this->belongsTo('Jwz104\BitcoinAccounts\BitcoinUser', 'bitcoin_account_id', 'id');
     }
 
     /**
      * The transactions with this address
      *
-     * @return jwz104\Bitcoin\BitcoinTransaction
+     * @return Jwz104\BitcoinAccounts\BitcoinTransaction
      */
     public function transactions()
     {
-        return $this->hasMany('jwz104\Bitcoin\BitcoinTransaction', 'bitcoin_address_id', 'id');
+        return $this->hasMany('Jwz104\BitcoinAccounts\BitcoinTransaction', 'bitcoin_address_id', 'id');
     }
 }

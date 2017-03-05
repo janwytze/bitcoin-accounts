@@ -1,6 +1,6 @@
 <?php
 
-namespace jwz104\Bitcoin\Jobs;
+namespace Jwz104\BitcoinAccounts\Jobs;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
