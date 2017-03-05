@@ -8,6 +8,8 @@ use Jwz104\BitcoinAccounts\Models\BitcoinUser;
 use Jwz104\BitcoinAccounts\Models\BitcoinAddress;
 use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
+use Jwz104\BitcoinAccounts\Transaction\Transaction;
+
 class BitcoinAccounts {
 
     /**
@@ -195,6 +197,49 @@ class BitcoinAccounts {
         $address->user_id = $user->id;
         $address->save();
         return true;
+    }
+
+    /**
+     * Send bitcoins to an user
+     *
+     * @param $fromuser Jwz104\BitcoinAccounts\Models\BitcoinUser From user
+     * @param $touser Jwz104\BitcoinAccounts\Models\BitcoinUser The destination user
+     * @param $amount double The amount of bitcoins
+     * @return bool
+     */
+    public function sendToUser(BitcoinUser $fromuser, BitcoinUser $touser, $amount)
+    {
+        if ($fromuser->balance() < $amount) {
+            return false;
+        }
+
+        $transaction = new BitcoinTransaction();
+
+        $transaction->bitcoin_user_id = $fromuser->id;
+        $transaction->amount = $amount;
+        $transaction->type = 'account';
+        $transaction->other_bitcoin_user_id = $touser->id;
+
+        $transaction->save();
+        return true;
+    }
+
+    /**
+     * Send bitcoins to an address and return the txid
+     * the amount of fee defined in the config file will be added to the amount
+     *
+     * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser From user
+     * @param $address Jwz104\BitcoinAccounts\Models\BitcoinAddress To address
+     * @param $amount double The amount of bitcoins
+     * @return string
+     */
+    public function sendToAddress(BitcoinUser $user, BitcoinAddress $address, $amount)
+    {
+        $transaction = new Transaction($fromuser, $address, $amount);
+
+        $transaction->create();
+        $transaction->sign();
+        return $transaction->send();
     }
 
     /**
