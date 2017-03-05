@@ -229,4 +229,15 @@ class BitcoinAccounts {
     {
         return $this->executeCommand('decoderawtransaction', $rawtx);
     }
+
+    /**
+     * Sign a raw transaction
+     *
+     * @param $rawtx string The transaction
+     * @return mixed[]
+     */
+    public function signRawTransaction($rawtx)
+    {
+        return $this->executeCommand('decoderawtransaction', $rawtx);
+    }
 }
