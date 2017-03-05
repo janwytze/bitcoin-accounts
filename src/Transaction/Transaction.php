@@ -6,7 +6,7 @@ use Jwz104\BitcoinAccounts\Models\BitcoinUser;
 use Jwz104\BitcoinAccounts\Models\BitcoinAddress;
 use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
-use BitcoinAccounts;
+use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
 
 class Transaction {
 
@@ -23,6 +23,13 @@ class Transaction {
      * @var double
      */
     protected $amount;
+
+    /**
+     * The amount of fee
+     *
+     * @var double
+     */
+    protected $fee;
 
     /**
      * The bitcoin user
@@ -44,13 +51,18 @@ class Transaction {
      * @param $bitcoinser Jwz104\BitcoinAccounts\Models\BitcoinUser The bitcoin user
      * @param $address string The destination address
      * @param $amount double The amount of bitcoins
+     * @param $fee double The amount of fee
      * @return void
      */
-    public function __construct(BitcoinUser $bitcoinuser, $address, $amount)
+    public function __construct(BitcoinUser $bitcoinuser, $address, $amount, $fee = null)
     {
+        if ($fee == null) {
+            $fee = config('bitcoinaccounts.bitcoin.transaction-fee');
+        }
         $this->bitcoinuser = $bitcoinuser;
         $this->address = $address;
         $this->amount = $amount;
+        $this->fee = $fee;
     }
 
     /**
@@ -69,7 +81,7 @@ class Transaction {
             ->sortByDesc('amount');
 
         $txout = [];
-        $amount = $this->amount;
+        $amount = ($this->amount+$this->fee);
         //Get the required amount of txout to create the transaction
         foreach ($unspent as $transaction) {
             $txout[] = [
@@ -78,14 +90,31 @@ class Transaction {
             ];
             $amount-=$transaction['amount'];
             //Keep going untill there are enough bitcoins
-            if ($amount < 0) {
+            if ($amount <= 0) {
                 break;
             }
         }
 
-        //Create the raw transaction
-        $rawtx = BitcoinTransactions::createRawTransaction($txout, [$this->address => $this->amount]);
+        //Check if there is enough balance in unspent
+        if ($amount > 0) {
+            throw new \Exception('Not enough balance in unspent');
+        }
 
-        return $this->rawtx = $rawtw;
+        //Create the raw transaction
+        $rawtx = BitcoinAccounts::createRawTransaction($txout, [$this->address => $this->amount]);
+
+        return ($this->rawtx = $rawtw);
+    }
+
+    /**
+     * Decode raw transaction
+     *
+     * @return mixed[]
+     */
+    public function decode()
+    {
+        if ($this->rawtx == null) {
+            return null;
+        }
     }
 }
