@@ -4,6 +4,8 @@ namespace Jwz104\BitcoinAccounts\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
+
 class BitcoinUser extends Model
 {
     /**
@@ -68,5 +70,15 @@ class BitcoinUser extends Model
         }
 
         return $balance;
+    }
+
+    /**
+     * Create an address for the user and return it
+     *
+     * @return string
+     */
+    public function createAddress()
+    {
+        return BitcoinAccounts::createAddress($this);
     }
 }
