@@ -32,6 +32,13 @@ class Transaction {
     protected $fee;
 
     /**
+     * The amount of bitcoins from the full transaction
+     *
+     * @var double
+     */
+    protected $transactionamount;
+
+    /**
      * The bitcoin user
      *
      * @var Jwz104\BitcoinAccounts\Models\BitcoinUser
@@ -41,9 +48,16 @@ class Transaction {
     /**
      * The raw transaction id
      *
-     * @var sring
+     * @var string
      */
     protected $rawtx;
+
+    /**
+     * The signed raw transaction id
+     *
+     * @var string
+     */
+    protected $signedrawtx;
 
     /**
      * Instantiate a new Transaction instance.
@@ -72,7 +86,7 @@ class Transaction {
      */
     public function createTransaction()
     {
-        if ($this->bitcoinuser->balance() < $this->amount) {
+        if ($this->bitcoinuser->balance() < $this->amount || $this->bitcoinuser->addresses->count() < 1) {
             return null;
         }
         //Get all the unspent transactions
@@ -100,8 +114,14 @@ class Transaction {
             throw new \Exception('Not enough balance in unspent');
         }
 
+        //Calculate what is paid to much
+        $total = collect($txout)->sum('amount');
+        $change = $total - ($this->amount+$this->fee);
+
+        $this->transactionamount = $total;
+
         //Create the raw transaction
-        $rawtx = BitcoinAccounts::createRawTransaction($txout, [$this->address => $this->amount]);
+        $rawtx = BitcoinAccounts::createRawTransaction($txout, [$this->address => $this->amount, $this->bitcoinuser->addresses->first()->address => $change]);
 
         return ($this->rawtx = $rawtw);
     }
@@ -116,5 +136,49 @@ class Transaction {
         if ($this->rawtx == null) {
             return null;
         }
+        return BitcoinAccounts::decodeRawTransaction($this->rawtx);
+    }
+
+    /**
+     * Sign the transaction and return signed tx
+     *
+     * @return string
+     */
+    public function sign()
+    {
+        if ($this->rawtx == null) {
+            return null;
+        }
+        return ($this->signedrawtx = BitcoinAccounts::signRawTransaction($this->rawtx));
+    }
+
+    /**
+     * Send the transaction and return the transaction id
+     *
+     * @return string
+     */
+    public function send()
+    {
+        if ($this->rawtx == null) {
+            return null;
+        }
+        try {
+            $txid = $this->signedrawtx = BitcoinAccounts::signRawTransaction($this->rawtx);
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        $bitcointransaction = new BitcoinTransaction();
+
+        $bitcointransaction->user_id = $this->bitcoinuser->id;
+        $bitcointransaction->txid = $txid;
+        $bitcointransaction->amount = $this->amount;
+        $bitcointransaction->fee = $this->fee;
+        $bitcointransaction->type = 'sent';
+        $bitcointransaction->other_address = $this->address;
+
+        $bitcointransaction->save();
+
+        return $txid;
     }
 }
