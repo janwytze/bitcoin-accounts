@@ -29,7 +29,7 @@ class BitcoinAddress extends Model
      */
     public function user()
     {
-        return $this->belongsTo('Jwz104\BitcoinAccounts\BitcoinUser', 'bitcoin_account_id', 'id');
+        return $this->belongsTo('Jwz104\BitcoinAccounts\BitcoinUser', 'bitcoin_user_id', 'id');
     }
 
     /**
