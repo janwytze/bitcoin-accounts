@@ -16,7 +16,7 @@ class CreateBitcoinAddressesTable extends Migration
         Schema::create('bitcoin_addresses', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->integer('bitcoin_user_id')->unsigned();
+            $table->integer('bitcoin_user_id')->nullable()->unsigned();
             $table->string('address', 35)->unique();
 
             $table->timestamps();
