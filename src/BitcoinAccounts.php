@@ -218,4 +218,15 @@ class BitcoinAccounts {
     {
         return $this->executeCommand('createrawtransaction', $txids, $destination);
     }
+
+    /**
+     * Decode a raw transaction
+     *
+     * @param $rawtx string The transaction
+     * @return mixed[]
+     */
+    public function decodeRawTransaction($rawtx)
+    {
+        return $this->executeCommand('decoderawtransaction', $rawtx);
+    }
 }
