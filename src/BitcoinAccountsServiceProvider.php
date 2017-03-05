@@ -28,7 +28,7 @@ class BitcoinAccountsServiceProvider extends ServiceProvider
 
         //Publish the config
         $this->publishes([
-            __DIR__.'/config' => public_path('config')
+            __DIR__.'/config' => 'config'
         ], 'config');
     }
 
