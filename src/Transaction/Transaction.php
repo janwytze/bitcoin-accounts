@@ -174,7 +174,7 @@ class Transaction {
         $bitcointransaction->txid = $txid;
         $bitcointransaction->amount = $this->amount;
         $bitcointransaction->fee = $this->fee;
-        $bitcointransaction->type = 'sent';
+        $bitcointransaction->type = 'send';
         $bitcointransaction->other_address = $this->address;
 
         $bitcointransaction->save();
