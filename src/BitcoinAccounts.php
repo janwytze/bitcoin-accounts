@@ -134,13 +134,13 @@ class BitcoinAccounts {
      * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser The user
      * @return bool
      */
-    public function createAddress(BitcoinUser $user)
+    public function createAddress(BitcoinUser $user = null)
     {
         $address = $this->executeCommand('getnewaddress');
 
         $bitcoinaddress = new BitcoinAddress();
 
-        $bitcoinaddress->bitcoin_user_id = $user->id;
+        $bitcoinaddress->bitcoin_user_id = ($user == null) ? null : $user->id;
         $bitcoinaddress->address = $address;
 
         $bitcoinaddress->save();
