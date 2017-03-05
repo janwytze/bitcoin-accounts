@@ -39,6 +39,6 @@ return [
     | fee: The fee per transaction
     */
     'bitcoin' => [
-        'transaction-fee' => '0.001',
+        'transaction-fee' => '0.0001',
     ]
 ];
