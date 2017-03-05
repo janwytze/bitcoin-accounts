@@ -28,4 +28,17 @@ return [
     'account' => [
         'autocreate-address' => true,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Bitcoin settings
+    |--------------------------------------------------------------------------
+    |
+    | Here you can change the bitcoin settings
+    |
+    | fee: The fee per transaction
+    */
+    'bitcoin' => [
+        'transaction-fee' => '0.001',
+    ]
 ];
