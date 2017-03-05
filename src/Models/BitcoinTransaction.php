@@ -14,6 +14,6 @@ class BitcoinTransaction extends Model
 
     public function bitcoinuser()
     {
-        return $this->belongsTo('Jwz104\BitcoinAccounts\BitcoinUser', 'bitcoin_account_id', 'id');
+        return $this->belongsTo('Jwz104\BitcoinAccounts\Models\BitcoinUser', 'bitcoin_account_id', 'id');
     }
 }

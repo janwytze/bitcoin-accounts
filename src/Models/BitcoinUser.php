@@ -29,7 +29,7 @@ class BitcoinUser extends Model
      */
     public function addresses()
     {
-        return $this->hasMany('Jwz104\BitcoinAccounts\BitcoinAddress', 'bitcoin_user_id', 'id');
+        return $this->hasMany('Jwz104\BitcoinAccounts\Models\BitcoinAddress', 'bitcoin_user_id', 'id');
     }
     
     /**
@@ -39,7 +39,7 @@ class BitcoinUser extends Model
      */
     public function transactions()
     {
-        return $this->hasMany('Jwz104\BitcoinAccounts\BitcoinTransaction', 'bitcoin_user_id', 'id')->orWhere('other_bitcoin_user_id', $this->id);
+        return $this->hasMany('Jwz104\BitcoinAccounts\Models\BitcoinTransaction', 'bitcoin_user_id', 'id')->orWhere('other_bitcoin_user_id', $this->id);
     }
 
     /**
