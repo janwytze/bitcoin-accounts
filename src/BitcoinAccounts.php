@@ -92,10 +92,10 @@ class BitcoinAccounts {
     }
 
     /**
-     * Create an account and return true on success
+     * Create an account and return it
      *
      * @param $name string The account name
-     * @return bool
+     * @return Jwz104\BitcoinAccounts\Models\BitcoinUser
      */
     public function createAccount($name)
     {
@@ -103,19 +103,29 @@ class BitcoinAccounts {
 
         $user->name = $name;
 
-        //If the user already exists return false
-        try {
-            $user->save();
-        } catch (\Exception $e) {
-            return false;
-        }
+        $user->save();
 
         //Auto create an address
         if (config('bitcoinaccounts.account.autocreate-address') == true) {
             $this->createAddress($user);
         }
 
-        return true;
+        return $user;
+    }
+
+    /**
+     * Return the account that belongs to the name or create one
+     *
+     * @param $name string The account name
+     * @return Jwz104\BitcoinAccounts\Models\BitcoinUser
+     */
+    public function getOrCreateAccount($name)
+    {
+        if (($user = $this->getAccount($name)) != null) {
+            return $user;
+        }
+
+        return $this->createAccount($name);
     }
 
     /**
