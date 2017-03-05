@@ -2,13 +2,15 @@
     "name": "jwz104/bitcoin-accounts",
     "description": "A bitcoin account system",
     "type": "library",
+    "version": "1.0.0",
+    "license": "MIT",
     "authors": [
         {
             "name": "Jan Wytze",
             "email": "jwzuid@live.nl"
         }
     ],
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "require": {
         "nbobtc/bitcoind-php": "^2.0"
     }
