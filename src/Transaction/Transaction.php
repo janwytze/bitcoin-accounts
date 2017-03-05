@@ -8,6 +8,8 @@ use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
 use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
 
+use Jwz104\BitcoinAccounts\Exceptions\LowBalanceException;
+
 class Transaction {
 
     /**
@@ -84,10 +86,10 @@ class Transaction {
      *
      * @return string
      */
-    public function createTransaction()
+    public function create()
     {
         if ($this->bitcoinuser->balance() < $this->amount) {
-            return null;
+            throw new LowBalanceException();
         }
         //Get all the unspent transactions
         $unspent = collect(BitcoinTransactions::listUnspent())
