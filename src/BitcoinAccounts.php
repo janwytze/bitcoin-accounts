@@ -231,11 +231,12 @@ class BitcoinAccounts {
      * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser From user
      * @param $address Jwz104\BitcoinAccounts\Models\BitcoinAddress To address
      * @param $amount double The amount of bitcoins
+     * @param $fee double The amount of fee, leave empty for default amount
      * @return string
      */
-    public function sendToAddress(BitcoinUser $user, BitcoinAddress $address, $amount)
+    public function sendToAddress(BitcoinUser $user, $address, $amount, $fee = null)
     {
-        $transaction = new Transaction($fromuser, $address, $amount);
+        $transaction = new Transaction($fromuser, $address, $amount, $fee);
 
         $transaction->create();
         $transaction->sign();
