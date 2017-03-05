@@ -11,7 +11,7 @@ class BitcoinAddress extends Model
      *
      * @var string
      */
-    protected $table = 'bitcoin_accounts';
+    protected $table = 'bitcoin_addresses';
 
     /**
      * The fillable columns
