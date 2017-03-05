@@ -31,12 +31,11 @@ class LoadTransactionsJob implements ShouldQueue
      */
     public function handle()
     {
-        $dinges = true;
         $page = 0;
-        while ($dinges) {
+        while (true) {
             $transactions = $this->getTransactions($page);
             $changed = $this->handleTransactions($transactions);
-            if ($changed) {
+            if (!$changed) {
                 break;
             }
             $page++;
@@ -68,11 +67,19 @@ class LoadTransactionsJob implements ShouldQueue
             $duplicate = BitcoinTransaction::join('bitcoin_addresses', 'bitcoin_addresses.id', '=', 'bitcoin_transactions.bitcoin_address_id')
                 ->where('txid', $transaction['txid']);
             if ($duplicate == null) {
-                $bitcoinaddress = BitcoinAddress::where('address', $transaction['address'])->first();
+                //Check if the transaction address is registered, and if it belongs to an user
+                $bitcoinaddress = BitcoinAddress::where('address', $transaction['address'])->whereNotNull('user_id')->first();
                 if ($bitcoinaddress != null) {
                     $bitcointransaction = new BitcoinTransaction();
 
+                    $bitcointransaction->bitcoin_user_id = $bitcoinaddress->user_id;
+                    $bitcointransaction->bitcoin_address_id = $bitcoinaddress->id;
+                    $bitcointransaction->txid = $transaction['txid'];
+                    $bitcointransaction->amount = $transaction['amount'];
+                    $bitcointransaction->type = 'receive';
+
                     $bitcointransaction->save();
+                    $changed = true;
                 }
             }
         }
