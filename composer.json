@@ -13,5 +13,10 @@
     "minimum-stability": "stable",
     "require": {
         "nbobtc/bitcoind-php": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jwz104\\BitcoinAccounts\\": "src/"
+        }
     }
 }
