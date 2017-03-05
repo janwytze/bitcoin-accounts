@@ -41,6 +41,6 @@ class LoadTransactionsCommand extends Command
     {
         $this->comment('Starting transaction loader job');
         dispatch(new LoadTransactionsJob());
-        $this->comment('Transaction loader job has started');
+        $this->info('Transaction loader job has started');
     }
 }

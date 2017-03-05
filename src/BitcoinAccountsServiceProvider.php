@@ -7,6 +7,15 @@ use Illuminate\Support\ServiceProvider;
 class BitcoinAccountsServiceProvider extends ServiceProvider
 {
     /**
+     * All the BitcoinAccounts commands
+     *
+     * @var array
+     */
+    protected $commands = [
+        'Jwz104\BitcoinAccounts\Console\Commands\LoadTransactionsCommand'
+    ];
+
+    /**
      * Bootstrap the application services.
      *
      * @return void
@@ -39,5 +48,6 @@ class BitcoinAccountsServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->commands($this->commands);
     }
 }

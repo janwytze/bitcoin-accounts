@@ -7,7 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ProcessPodcast implements ShouldQueue
+class LoadTransactionsJob implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
 
