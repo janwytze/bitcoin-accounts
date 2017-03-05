@@ -25,6 +25,11 @@ class BitcoinAccountsServiceProvider extends ServiceProvider
 	});
 
 	$this->app->make('jwz104.bitcoinaccounts.console.kernel');
+
+        //Publish the config
+        $this->publishes([
+            __DIR__.'/config' => public_path('config')
+        ], 'config');
     }
 
     /**
