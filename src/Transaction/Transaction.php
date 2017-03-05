@@ -86,7 +86,7 @@ class Transaction {
      */
     public function createTransaction()
     {
-        if ($this->bitcoinuser->balance() < $this->amount || $this->bitcoinuser->addresses->count() < 1) {
+        if ($this->bitcoinuser->balance() < $this->amount) {
             return null;
         }
         //Get all the unspent transactions
@@ -120,8 +120,14 @@ class Transaction {
 
         $this->transactionamount = $total;
 
+        //This is the address where the change goes, it is not linked to an account
+        $changeaddress = BitcoinAddress::where('bitcoin_user_id', null)->first();
+        if ($changeaddress == null) {
+            $changeaddress = BitcoinAccounts::createAddress();
+        }
+
         //Create the raw transaction
-        $rawtx = BitcoinAccounts::createRawTransaction($txout, [$this->address => $this->amount, $this->bitcoinuser->addresses->first()->address => $change]);
+        $rawtx = BitcoinAccounts::createRawTransaction($txout, [$this->address => $this->amount, $changeaddress => $change]);
 
         return ($this->rawtx = $rawtw);
     }
@@ -162,12 +168,10 @@ class Transaction {
         if ($this->rawtx == null) {
             return null;
         }
-        try {
-            $txid = $this->signedrawtx = BitcoinAccounts::signRawTransaction($this->rawtx);
-        } catch (\Exception $e) {
-            return null;
-        }
 
+        $txid = $this->signedrawtx = BitcoinAccounts::signRawTransaction($this->rawtx);
+
+        //Create the transaction
         $bitcointransaction = new BitcoinTransaction();
 
         $bitcointransaction->user_id = $this->bitcoinuser->id;
@@ -178,6 +182,8 @@ class Transaction {
         $bitcointransaction->other_address = $this->address;
 
         $bitcointransaction->save();
+
+        //The change transaction doesn't have to be created because it isn't attached to an user
 
         return $txid;
     }
