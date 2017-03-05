@@ -92,6 +92,53 @@ class BitcoinAccounts {
     }
 
     /**
+     * Create an account and return true on success
+     *
+     * @param $name string The account name
+     * @return bool
+     */
+    public function createAccount($name)
+    {
+        $user = new BitcoinUser();
+
+        $user->name = $name;
+
+        //If the user already exists return false
+        try {
+            $user->save();
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        //Auto create an address
+        if (config('bitcoinaccounts.account.autocreate-address') == true) {
+            $this->createAddress($user);
+        }
+
+        return true;
+    }
+
+    /**
+     * Create an address for an account and return the id
+     *
+     * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser The user
+     * @return bool
+     */
+    public function createAddress(BitcoinUser $user)
+    {
+        $address = $this->executeCommand('getnewaddress');
+
+        $bitcoinaddress = new BitcoinAddress();
+
+        $bitcoinaddress->bitcoin_user_id = $user->id;
+        $bitcoinaddress->address = $address;
+
+        $bitcoinaddress->save();
+
+        return $bitcoinaddress->id;
+    }
+
+    /**
      * Remove an account
      *
      * @param $user int The account
