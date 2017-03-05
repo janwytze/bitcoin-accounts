@@ -46,7 +46,7 @@ class BitcoinAccounts {
         $url[] = ':';
         $url[] = $connectionconfig['port'];
 
-        return implode($url, '');
+        return implode($url);
     }
 
     /**
@@ -59,7 +59,7 @@ class BitcoinAccounts {
     public function executeCommand($command, ...$params)
     {
         $command = new \Nbobtc\Command\Command($command, $params);
-        $response = $this->btcconnection->sendCommand($command);
+        $response = $this->connection->sendCommand($command);
 
         //Throw exception when command fails
         if ($response->getStatusCode() != 200) {
