@@ -240,4 +240,16 @@ class BitcoinAccounts {
     {
         return $this->executeCommand('decoderawtransaction', $rawtx);
     }
+
+    /**
+     * List the transactions and filter out bitcoind user to user transactions
+     *
+     * @param $rawtx string The transaction
+     * @return mixed[]
+     */
+    public function listTransactions($from, $amount)
+    {
+        $transactions = collect($this->executeCommand('listtransactions', '*', $amount, $from));
+        return $transactions->where('category', '!=', 'move');
+    }
 }

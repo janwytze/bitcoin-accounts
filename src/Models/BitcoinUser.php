@@ -54,7 +54,7 @@ class BitcoinUser extends Model
         $balance = 0;
 
         foreach ($this->transactions as $transaction) {
-            if ($transaction->type == 'sent') {
+            if ($transaction->type == 'send') {
                 //Also add fee
                 $balance += ($transaction->amount + $transaction->fee);
             } elseif ($transaction->type == 'receive') {
