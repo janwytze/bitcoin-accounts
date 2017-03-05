@@ -18,7 +18,7 @@ class CreateBitcoinTransactionsTable extends Migration
 
             $table->integer('bitcoin_user_id')->unsigned();
             $table->integer('bitcoin_address_id')->unsigned()->nullable();
-            $table->string('txid', 64)->unique()->nullable();
+            $table->string('txid', 64)->nullable();
             $table->double('amount', 20, 8);
             $table->double('fee', 20, 8)->nullable();
             $table->enum('type', ['send', 'receive', 'account']);
