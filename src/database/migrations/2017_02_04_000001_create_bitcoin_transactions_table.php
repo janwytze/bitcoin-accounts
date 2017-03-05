@@ -28,7 +28,7 @@ class CreateBitcoinTransactionsTable extends Migration
             $table->timestamps();
 
             $table->foreign('bitcoin_user_id')->references('id')->on('bitcoin_users');
-            $table->foreign('bitcoin_address_id')->references('id')->on('bitcoin_address');
+            $table->foreign('bitcoin_address_id')->references('id')->on('bitcoin_addresses');
             $table->foreign('other_bitcoin_user_id')->references('id')->on('bitcoin_users');
         });
     }
