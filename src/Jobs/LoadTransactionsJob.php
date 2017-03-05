@@ -7,6 +7,10 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
+use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
+
+use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
+
 class LoadTransactionsJob implements ShouldQueue
 {
     use InteractsWithQueue, Queueable, SerializesModels;
@@ -27,5 +31,51 @@ class LoadTransactionsJob implements ShouldQueue
      */
     public function handle()
     {
+        $dinges = true;
+        $page = 0;
+        while ($dinges) {
+            $transactions = $this->getTransactions($page);
+            $changed = $this->handleTransactions($transactions);
+            if ($changed) {
+                break;
+            }
+            $page++;
+        }
+    }
+
+    /**
+     * Get all the transactions and filter them.
+     *
+     * @param $page int The page to get, 50 per page, starts at 0
+     * @return array
+     */
+    protected function getTransactions($page)
+    {
+        $transactions = BitcoinAccounts::listTransactions($page*50, 50);
+        return $transactions->where('category', 'receive');
+    }
+
+    /**
+     * Handle all the transactions and return true if something was handled
+     *
+     * @param $transactions array
+     * @return boolean
+     */
+    protected function handleTransactions($transactions)
+    {
+        $changed = false;
+        foreach ($transactions as $transaction) {
+            $duplicate = BitcoinTransaction::join('bitcoin_addresses', 'bitcoin_addresses.id', '=', 'bitcoin_transactions.bitcoin_address_id')
+                ->where('txid', $transaction['txid']);
+            if ($duplicate == null) {
+                $bitcoinaddress = BitcoinAddress::where('address', $transaction['address'])->first();
+                if ($bitcoinaddress != null) {
+                    $bitcointransaction = new BitcoinTransaction();
+
+                    $bitcointransaction->save();
+                }
+            }
+        }
+        return $changed;
     }
 }
