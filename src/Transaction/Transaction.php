@@ -69,6 +69,13 @@ class Transaction {
     protected $txid;
 
     /**
+     * The outgoing transactions
+     *
+     * @var array
+     */
+    protected $txout;
+
+    /**
      * Instantiate a new Transaction instance.
      *
      * @param $bitcoinser Jwz104\BitcoinAccounts\Models\BitcoinUser The bitcoin user
@@ -120,6 +127,7 @@ class Transaction {
                 break;
             }
         }
+        $this->txout = $txout;
 
         //Check if there is enough balance in unspent
         if ($amount > 0) {
@@ -140,13 +148,25 @@ class Transaction {
         }
 
         //Create the raw transaction
-        $rawtx = BitcoinAccounts::createRawTransaction($txout, [$this->address => $this->amount, $changeaddress => $change]);
+        $rawtx = BitcoinAccounts::createRawTransaction($this->txout, [$this->address => $this->amount, $changeaddress => $change]);
 
         if ($lockunspent) {
-            BitcoinAccounts::lockUnspent($txout);
+            BitcoinAccounts::lockUnspent($this->txout);
         }
 
         return ($this->rawtx = $rawtx);
+    }
+
+    /**
+     * Unlock the unspent transaction
+     * Use when you want to cancel the transaction
+     * Only needed when the $lockunspent param in create was true
+     *
+     * @return void
+     */
+    public function unlock()
+    {
+        BitcoinAccounts::unlockUnspent($this->txout);
     }
 
     /**
