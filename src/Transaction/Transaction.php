@@ -62,12 +62,19 @@ class Transaction {
     protected $signedrawtx;
 
     /**
+     * The Transaction id of a sended transaction
+     *
+     * @var string
+     */
+    protected $txid;
+
+    /**
      * Instantiate a new Transaction instance.
      *
      * @param $bitcoinser Jwz104\BitcoinAccounts\Models\BitcoinUser The bitcoin user
      * @param $address string The destination address
      * @param $amount double The amount of bitcoins
-     * @param $fee double The amount of fee
+     * @param $fee double The amount of fee, When null or empty use the fee of the config file
      * @return void
      */
     public function __construct(BitcoinUser $bitcoinuser, $address, $amount, $fee = null)
@@ -84,9 +91,10 @@ class Transaction {
     /**
      * Create the transaction and return the raw transaction
      *
+     * @param $lockunspent boolean Lock the select unspent transactions
      * @return string
      */
-    public function create()
+    public function create($lockunspent = true)
     {
         if ($this->bitcoinuser->balance() < $this->amount) {
             throw new LowBalanceException();
@@ -133,6 +141,10 @@ class Transaction {
 
         //Create the raw transaction
         $rawtx = BitcoinAccounts::createRawTransaction($txout, [$this->address => $this->amount, $changeaddress => $change]);
+
+        if ($lockunspent) {
+            BitcoinAccounts::lockUnspent($txout);
+        }
 
         return ($this->rawtx = $rawtx);
     }
