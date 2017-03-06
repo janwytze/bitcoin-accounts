@@ -10,6 +10,9 @@ use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
 use Jwz104\BitcoinAccounts\Transaction\Transaction;
 
+use Jwz104\Exceptions\CommandFailedException;
+use Jwz104\Exceptions\LowBalanceException;
+
 class BitcoinAccounts {
 
     /**
@@ -65,7 +68,7 @@ class BitcoinAccounts {
 
         //Throw exception when command fails
         if ($response->getStatusCode() != 200) {
-            throw CommandFailedException();
+            throw CommandFailedException($response->getStatusCode());
         }
 
         return json_decode($response->getBody()->getContents(), true)['result'];
@@ -210,7 +213,7 @@ class BitcoinAccounts {
     public function sendToUser(BitcoinUser $fromuser, BitcoinUser $touser, $amount)
     {
         if ($fromuser->balance() < $amount) {
-            return false;
+            throw new LowBalanceException();
         }
 
         $transaction = new BitcoinTransaction();
