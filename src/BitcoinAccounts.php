@@ -249,11 +249,19 @@ class BitcoinAccounts {
     /**
      * List all the unspent bitcoins
      *
+     * @param $listlocked boolean List the locked transactions
      * @return mixed
      */
-    public function listUnspent()
+    public function listUnspent($listlocked = false)
     {
-        return $this->executeCommand('listunspent');
+        $unspent = $this->executeCommand('listunspent');
+        if (!$listlocked) {
+            $lockedunspent = $this->listLockedUnspent();
+            /**
+             * @todo Remove the locked unspent from the unspent
+             */
+        }
+        return $unspent;
     }
 
     /**
@@ -266,6 +274,38 @@ class BitcoinAccounts {
     public function createRawTransaction($txids, $destination)
     {
         return $this->executeCommand('createrawtransaction', $txids, $destination);
+    }
+
+    /**
+     * Lock unspent transactions
+     *
+     * @param $txids mixed[] The transaction ids from listunspent
+     * @return bool
+     */
+    public function lockUnspent($txids)
+    {
+        return $this->executeCommand('lockunspent', false, $txids);
+    }
+
+    /**
+     * Unlock unspent transactions
+     *
+     * @param $txids mixed[] The transaction ids from listunspent
+     * @return bool
+     */
+    public function unlockUnspent($txids)
+    {
+        return $this->executeCommand('lockunspent', true, $txids);
+    }
+
+    /**
+     * List the locked unspent transactions
+     *
+     * @return mixed[]
+     */
+    public function listLockedUnspent()
+    {
+        return $this->executeCommand('listlockunspent');
     }
 
     /**
