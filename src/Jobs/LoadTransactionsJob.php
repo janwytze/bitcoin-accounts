@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
 
 use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
+use Jwz104\BitcoinAccounts\Models\BitcoinAddress;
 
 class LoadTransactionsJob implements ShouldQueue
 {
@@ -65,14 +66,16 @@ class LoadTransactionsJob implements ShouldQueue
         $changed = false;
         foreach ($transactions as $transaction) {
             $duplicate = BitcoinTransaction::join('bitcoin_addresses', 'bitcoin_addresses.id', '=', 'bitcoin_transactions.bitcoin_address_id')
-                ->where('txid', $transaction['txid']);
+                ->where('bitcoin_transactions.txid', $transaction['txid'])
+                ->where('bitcoin_addresses.address', $transaction['address'])
+                ->first();
             if ($duplicate == null) {
                 //Check if the transaction address is registered, and if it belongs to an user
-                $bitcoinaddress = BitcoinAddress::where('address', $transaction['address'])->whereNotNull('user_id')->first();
+                $bitcoinaddress = BitcoinAddress::where('address', $transaction['address'])->whereNotNull('bitcoin_user_id')->first();
                 if ($bitcoinaddress != null) {
                     $bitcointransaction = new BitcoinTransaction();
 
-                    $bitcointransaction->bitcoin_user_id = $bitcoinaddress->user_id;
+                    $bitcointransaction->bitcoin_user_id = $bitcoinaddress->bitcoin_user_id;
                     $bitcointransaction->bitcoin_address_id = $bitcoinaddress->id;
                     $bitcointransaction->txid = $transaction['txid'];
                     $bitcointransaction->amount = $transaction['amount'];
