@@ -10,8 +10,8 @@ use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
 use Jwz104\BitcoinAccounts\Transaction\Transaction;
 
-use Jwz104\Exceptions\CommandFailedException;
-use Jwz104\Exceptions\LowBalanceException;
+use Jwz104\BitcoinAccounts\Exceptions\CommandFailedException;
+use Jwz104\BitcoinAccounts\Exceptions\LowBalanceException;
 
 class BitcoinAccounts {
 
@@ -68,7 +68,7 @@ class BitcoinAccounts {
 
         //Throw exception when command fails
         if ($response->getStatusCode() != 200) {
-            throw CommandFailedException($response->getStatusCode());
+            throw new CommandFailedException($response->getStatusCode(), $response->getBody()->getContents());
         }
 
         return json_decode($response->getBody()->getContents(), true)['result'];
@@ -239,7 +239,7 @@ class BitcoinAccounts {
      */
     public function sendToAddress(BitcoinUser $user, $address, $amount, $fee = null)
     {
-        $transaction = new Transaction($fromuser, $address, $amount, $fee);
+        $transaction = new Transaction($user, $address, $amount, $fee);
 
         $transaction->create();
         $transaction->sign();
@@ -287,7 +287,19 @@ class BitcoinAccounts {
      */
     public function signRawTransaction($rawtx)
     {
-        return $this->executeCommand('decoderawtransaction', $rawtx);
+        $signedtransaction = $this->executeCommand('signrawtransaction', $rawtx);
+        return $signedtransaction['hex'];
+    }
+
+    /**
+     * Send a raw transaction
+     *
+     * @param $signedrawtx string The transaction
+     * @return mixed[]
+     */
+    public function sendRawTransaction($signedrawtx)
+    {
+        return $this->executeCommand('sendrawtransaction', $signedrawtx);
     }
 
     /**
@@ -299,6 +311,6 @@ class BitcoinAccounts {
     public function listTransactions($from, $amount)
     {
         $transactions = collect($this->executeCommand('listtransactions', '*', $amount, $from));
-        return $transactions->where('category', '!=', 'move');
+        return $transactions->where('category', '!=', 'move')->where('confirmations', '>', 0);
     }
 }
