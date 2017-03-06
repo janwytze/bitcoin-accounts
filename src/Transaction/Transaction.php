@@ -92,18 +92,20 @@ class Transaction {
             throw new LowBalanceException();
         }
         //Get all the unspent transactions
-        $unspent = collect(BitcoinTransactions::listUnspent())
+        $unspent = collect(BitcoinAccounts::listUnspent())
             ->where('spendable', true)
             ->sortByDesc('amount');
 
         $txout = [];
         $amount = ($this->amount+$this->fee);
+        $total = 0;
         //Get the required amount of txout to create the transaction
         foreach ($unspent as $transaction) {
             $txout[] = [
-                'txid' => $transaction->txid, 
-                'vout' => $transaction->vout, 
+                'txid' => $transaction['txid'], 
+                'vout' => $transaction['vout'], 
             ];
+            $total += $transaction['amount'];
             $amount-=$transaction['amount'];
             //Keep going untill there are enough bitcoins
             if ($amount <= 0) {
@@ -117,7 +119,6 @@ class Transaction {
         }
 
         //Calculate what is paid to much
-        $total = collect($txout)->sum('amount');
         $change = $total - ($this->amount+$this->fee);
 
         $this->transactionamount = $total;
@@ -126,12 +127,14 @@ class Transaction {
         $changeaddress = BitcoinAddress::where('bitcoin_user_id', null)->first();
         if ($changeaddress == null) {
             $changeaddress = BitcoinAccounts::createAddress();
+        } else {
+            $changeaddress = $changeaddress->address;
         }
 
         //Create the raw transaction
         $rawtx = BitcoinAccounts::createRawTransaction($txout, [$this->address => $this->amount, $changeaddress => $change]);
 
-        return ($this->rawtx = $rawtw);
+        return ($this->rawtx = $rawtx);
     }
 
     /**
@@ -167,16 +170,17 @@ class Transaction {
      */
     public function send()
     {
-        if ($this->rawtx == null) {
+        if ($this->signedrawtx == null) {
             return null;
         }
 
-        $txid = $this->signedrawtx = BitcoinAccounts::signRawTransaction($this->rawtx);
+        $txid = ($this->txid = BitcoinAccounts::sendRawTransaction($this->signedrawtx));
+        
 
         //Create the transaction
         $bitcointransaction = new BitcoinTransaction();
 
-        $bitcointransaction->user_id = $this->bitcoinuser->id;
+        $bitcointransaction->bitcoin_user_id = $this->bitcoinuser->id;
         $bitcointransaction->txid = $txid;
         $bitcointransaction->amount = $this->amount;
         $bitcointransaction->fee = $this->fee;
