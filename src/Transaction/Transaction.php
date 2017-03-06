@@ -9,6 +9,7 @@ use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
 
 use Jwz104\BitcoinAccounts\Exceptions\LowBalanceException;
+use Jwz104\BitcoinAccounts\Exceptions\LowUnspentException;
 
 class Transaction {
 
@@ -76,6 +77,14 @@ class Transaction {
     protected $txout;
 
     /**
+     * Is the unspent transaction locked
+     * It is set after the created function
+     *
+     * @var boolean
+     */
+    protected $locked;
+
+    /**
      * Instantiate a new Transaction instance.
      *
      * @param $bitcoinser Jwz104\BitcoinAccounts\Models\BitcoinUser The bitcoin user
@@ -97,14 +106,24 @@ class Transaction {
 
     /**
      * Create the transaction and return the raw transaction
+     * Return null if the transaction doesn't contain any bitcoins
      *
      * @param $lockunspent boolean Lock the select unspent transactions
      * @return string
      */
     public function create($lockunspent = true)
     {
+        //If the transation doesn't contain any bitcoins return null
+        if ($this->amount <= 0 && $this->fee <= 0) {
+            return null;
+        }
+        if ($this->amount < 0 || $this->fee < 0) {
+            return null;
+        }
+
+        $this->locked = $lockunspent;
         if ($this->bitcoinuser->balance() < $this->amount) {
-            throw new LowBalanceException();
+            throw new LowBalanceException($this->bitcoinuser);
         }
         //Get all the unspent transactions
         $unspent = collect(BitcoinAccounts::listUnspent())
@@ -131,7 +150,7 @@ class Transaction {
 
         //Check if there is enough balance in unspent
         if ($amount > 0) {
-            throw new \Exception('Not enough balance in unspent');
+            throw new LowUnspentException();
         }
 
         //Calculate what is paid to much
@@ -150,7 +169,7 @@ class Transaction {
         //Create the raw transaction
         $rawtx = BitcoinAccounts::createRawTransaction($this->txout, [$this->address => $this->amount, $changeaddress => $change]);
 
-        if ($lockunspent) {
+        if ($this->locked) {
             BitcoinAccounts::lockUnspent($this->txout);
         }
 
@@ -160,7 +179,7 @@ class Transaction {
     /**
      * Unlock the unspent transaction
      * Use when you want to cancel the transaction
-     * Only needed when the $lockunspent param in create was true
+     * Only needed when the $locked variable is true
      *
      * @return void
      */
