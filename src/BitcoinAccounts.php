@@ -410,6 +410,6 @@ class BitcoinAccounts {
     public function listTransactions($from, $amount)
     {
         $transactions = collect($this->executeCommand('listtransactions', '*', $amount, $from));
-        return $transactions->where('category', '!=', 'move')->where('confirmations', '>', 0);
+        return $transactions->where('category', '!=', 'move')->where('confirmations', '>=', config('bitcoinaccounts.bitcoin.confirmations'));
     }
 }
