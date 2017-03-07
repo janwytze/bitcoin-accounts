@@ -1,11 +1,13 @@
 # bitcoin-accounts
-An alternative to the bitcoind build-in account system.
+An alternative to the bitcoind build-in account system for Laravel.
 This package is developed because the bitcoind account system is deprecated.
 With this package you can set the fee, so you know exacly what you send.
 Account to account transactions are possible and don't cost any fee.
 
 This package has an transaction table with all user transactions.
 Transactions with addresses that are not registered will not be imported.
+
+This package runs a cronjob every minute to import the transactions.
 
 
 ## Installation
@@ -108,3 +110,13 @@ Sign a raw transaction
 
 #### listTransactions($from, $amount)
 List the transactions
+
+## Todo
+
+This package is still very unstable and a lot of thinks have to be added
+
+* Multiple transfers in one transfer
+* Transaction cancelling(When a transaction isn't confirmed you can cancel it)
+* Configuring the cronjob
+* Configuring the minimum confirmations
+* Making the package more stable
