@@ -37,8 +37,10 @@ return [
     | Here you can change the bitcoin settings
     |
     | fee: The fee per transaction
+    | confirmations: The amount of confirmations before the bitcoins get added
     */
     'bitcoin' => [
         'transaction-fee' => '0.0001',
+        'confirmations' => 1,
     ]
 ];
