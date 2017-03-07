@@ -290,6 +290,22 @@ class BitcoinAccounts {
     }
 
     /**
+     * Transfer all bitcoin of the user to an user
+     *
+     * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser The user
+     * @param $fromuser Jwz104\BitcoinAccounts\Models\BitcoinUser The user
+     * @return string
+     */
+    public function emptyAccountToUser(BitcoinUser $user, BitcoinUser $touser)
+    {
+        if ($user->balance() <= 0) {
+            throw new LowBalanceException($user);
+        }
+
+        return $this->sendToUser($user, $touser, $user->balance);
+    }
+
+    /**
      * List all the unspent bitcoins
      *
      * @param $listlocked boolean List the locked transactions

@@ -125,10 +125,23 @@ class BitcoinUser extends Model
      * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser The user
      * @param $address string The address
      * @param $fee double The fee, null for default fee
+     * @throws Jwz104\BitcoinAccounts\Exceptions\LowBalanceException Thrown then the user balance minus the fee is 0 or lower
      * @return string
      */
     public function emptyAccountToAddress($address, $fee = null)
     {
         return BitcoinAccounts::emptyAccountToAddress($this, $address, $fee);
+    }
+
+    /**
+     * Transfer all bitcoin of the user to an address and return the txid
+     *
+     * @param $touser Jwz104\BitcoinAccounts\Models\BitcoinUser The user
+     * @throws Jwz104\BitcoinAccounts\Exceptions\LowBalanceException Thrown then the user balance is 0 or lower
+     * @return void
+     */
+    public function emptyAccountToUser(BitcoinUser $touser)
+    {
+        return BitcoinAccounts::emptyAccountToUser($this, $touser);
     }
 }
