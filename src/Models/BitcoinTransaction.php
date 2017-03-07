@@ -9,12 +9,24 @@ class BitcoinTransaction extends Model
     protected $table = 'bitcoin_transactions';
 
     protected $fillable = [
-        'bitcoin_address_id', 'bitcoin_user_id',
+        'bitcoin_user_id',
+        'bitcoin_address_id',
+        'txid',
+        'amount',
+        'fee',
+        'type',
+        'other_address',
+        'other_bitcoin_user_id',
     ];
 
-    public function bitcoinuser()
+    public function user()
     {
         return $this->belongsTo('Jwz104\BitcoinAccounts\Models\BitcoinUser', 'bitcoin_user_id', 'id');
+    }
+
+    public function other_user()
+    {
+        return $this->belongsTo('Jwz104\BitcoinAccounts\Models\BitcoinUser', 'other_bitcoin_user_id', 'id');
     }
 
     public function address()

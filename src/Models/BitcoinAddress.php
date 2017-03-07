@@ -19,7 +19,8 @@ class BitcoinAddress extends Model
      * @var string[]
      */
     protected $fillable = [
-        'address', 'bitcoin_user_id',
+        'bitcoin_user_id',
+        'address',
     ];
 
     /**
