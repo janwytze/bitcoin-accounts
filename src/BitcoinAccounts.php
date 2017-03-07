@@ -213,7 +213,7 @@ class BitcoinAccounts {
     public function sendToUser(BitcoinUser $fromuser, BitcoinUser $touser, $amount)
     {
         if ($fromuser->balance() < $amount) {
-            throw new LowBalanceException();
+            throw new LowBalanceException($fromuser);
         }
 
         $transaction = new BitcoinTransaction();
@@ -244,6 +244,49 @@ class BitcoinAccounts {
         $transaction->create();
         $transaction->sign();
         return $transaction->send();
+    }
+
+    /**
+     * Get all removed accounts that have balance
+     *
+     * @return Jwz104\BitcoinAccounts\Models\BitcoinUser
+     */
+    public function getRemovedUsersWithBalance()
+    {
+        $deletedusers = BitcoinUser::onlyTrashed()->get();
+
+        $balanceusers = [];
+
+        foreach ($deletedusers as $deleteduser) {
+            if ($user->balance() > 0) {
+                $balanceusers[] = $deleteduser;
+            }
+        }
+
+        return $balanceusers;
+    }
+
+    /**
+     * Transfer all bitcoin of the user to an address and return the txid
+     *
+     * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser The user
+     * @param $address string The address
+     * @param $fee double The fee, null for default fee
+     * @return string
+     */
+    public function emptyAccountToAddress(BitcoinUser $user, $address, $fee = null)
+    {
+        if ($fee == null) {
+            $fee = config('bitcoinaccounts.bitcoin.transaction-fee');
+        }
+
+        $amount = ($user->balance() - $fee);
+        
+        if ($amount <= 0) {
+            throw new LowBalanceException($user);
+        }
+
+        return $this->sendToAddress($user, $address, $amount, $fee);
     }
 
     /**
