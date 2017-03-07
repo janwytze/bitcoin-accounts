@@ -125,6 +125,7 @@ class Transaction {
         if ($this->bitcoinuser->balance() < $this->amount) {
             throw new LowBalanceException($this->bitcoinuser);
         }
+
         //Get all the unspent transactions
         $unspent = collect(BitcoinAccounts::listUnspent())
             ->where('spendable', true)
@@ -133,6 +134,7 @@ class Transaction {
         $txout = [];
         $amount = ($this->amount+$this->fee);
         $total = 0;
+
         //Get the required amount of txout to create the transaction
         foreach ($unspent as $transaction) {
             $txout[] = [
