@@ -10,6 +10,7 @@ use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
 
 use Jwz104\BitcoinAccounts\Exceptions\LowBalanceException;
 use Jwz104\BitcoinAccounts\Exceptions\LowUnspentException;
+use Jwz104\BitcoinAccounts\Exceptions\InvalidTransactionException;
 
 class Transaction {
 
@@ -102,6 +103,31 @@ class Transaction {
         $this->address = $address;
         $this->amount = $amount;
         $this->fee = $fee;
+
+        $this->check();
+    }
+
+    /**
+     * Check if the transaction is valid and if the balance is high enough
+     *
+     * @throws Jwz104\BitcoinAccounts\Exceptions\LowBalanceException Thrown when balance is to low
+     * @throws Jwz104\BitcoinAccounts\Exceptions\InvalidTransactionException Thrown when transaction is invalid
+     * @return void
+     */
+    protected function check()
+    {
+        //If the transation doesn't contain any bitcoins throw exception
+        if ($this->amount <= 0 && $this->fee <= 0) {
+            throw new InvalidTransactionException();
+        }
+        if ($this->amount < 0 || $this->fee < 0) {
+            throw new InvalidTransactionException();
+        }
+
+        //Throw low balance exception when balance is to low
+        if ($this->bitcoinuser->balance() < ($this->amount+$this->fee)) {
+            throw new LowBalanceException($this->bitcoinuser);
+        }
     }
 
     /**
@@ -113,18 +139,8 @@ class Transaction {
      */
     public function create($lockunspent = true)
     {
-        //If the transation doesn't contain any bitcoins return null
-        if ($this->amount <= 0 && $this->fee <= 0) {
-            return null;
-        }
-        if ($this->amount < 0 || $this->fee < 0) {
-            return null;
-        }
-
+        $this->check();
         $this->locked = $lockunspent;
-        if ($this->bitcoinuser->balance() < $this->amount) {
-            throw new LowBalanceException($this->bitcoinuser);
-        }
 
         //Get all the unspent transactions
         $unspent = collect(BitcoinAccounts::listUnspent())
@@ -223,6 +239,7 @@ class Transaction {
      */
     public function send()
     {
+        $this->check();
         if ($this->signedrawtx == null) {
             return null;
         }
