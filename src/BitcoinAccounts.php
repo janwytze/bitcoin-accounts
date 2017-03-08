@@ -8,7 +8,7 @@ use Jwz104\BitcoinAccounts\Models\BitcoinUser;
 use Jwz104\BitcoinAccounts\Models\BitcoinAddress;
 use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
-use Jwz104\BitcoinAccounts\Transaction\Transaction;
+use Jwz104\BitcoinAccounts\Transaction\SingleTransaction;
 
 use Jwz104\BitcoinAccounts\Exceptions\CommandFailedException;
 use Jwz104\BitcoinAccounts\Exceptions\LowBalanceException;
@@ -239,7 +239,7 @@ class BitcoinAccounts {
      */
     public function sendToAddress(BitcoinUser $user, $address, $amount, $fee = null)
     {
-        $transaction = new Transaction($user, $address, $amount, $fee);
+        $transaction = new SingleTransaction($user, $address, $amount, $fee);
 
         $transaction->create();
         $transaction->sign();
