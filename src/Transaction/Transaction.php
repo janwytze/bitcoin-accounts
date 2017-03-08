@@ -234,6 +234,18 @@ class Transaction {
     }
 
     /**
+     * Check if the transaction and lines are valid
+     *
+     * @return void
+     */
+    public function check()
+    {
+        foreach ($this->transactionlines as $transactionline) {
+            $transactionline->check();
+        }
+    }
+
+    /**
      * Unlock the unspent transaction
      * Use when you want to cancel the transaction
      * Only needed when the $locked variable is true
@@ -282,10 +294,7 @@ class Transaction {
             return null;
         }
 
-        //Check for balances before sending the transaction
-        foreach ($this->transactionlines as $transactionline) {
-            $transactionline->check();
-        }
+        $this->check();
 
         $txid = ($this->txid = BitcoinAccounts::sendRawTransaction($this->signedrawtx));
 
