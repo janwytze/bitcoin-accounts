@@ -1,147 +1,177 @@
 <?php
 
-namespace Jwz104\BitcoinAccounts\Transaction;
+namespace Jwz104\BitcoinAccounts\Transactions;
 
 use Jwz104\BitcoinAccounts\Models\BitcoinUser;
 use Jwz104\BitcoinAccounts\Models\BitcoinAddress;
 use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
-use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
-
-use Jwz104\BitcoinAccounts\Exceptions\LowBalanceException;
-use Jwz104\BitcoinAccounts\Exceptions\LowUnspentException;
-use Jwz104\BitcoinAccounts\Exceptions\InvalidTransactionException;
+use Jwz104\BitcoinAccounts\Transfer\TransactionLine;
 
 class Transaction {
 
     /**
-     * The destination address
+     * The a
      *
-     * @var string
+     * @var Jwz104\BitcoinAccounts\Transfer\TransactionLine[]
      */
-    protected $address;
+    protected $transactionlines;
 
     /**
-     * The amount of bitcoins
+     * The transaction transaction fee, this is the sum of all destination fees
      *
-     * @var double
-     */
-    protected $amount;
-
-    /**
-     * The amount of fee
-     *
-     * @var double
+     * @var mixed[]
      */
     protected $fee;
 
     /**
-     * The amount of bitcoins from the full transaction
-     *
-     * @var double
-     */
-    protected $transactionamount;
-
-    /**
-     * The bitcoin user
-     *
-     * @var Jwz104\BitcoinAccounts\Models\BitcoinUser
-     */
-    protected $bitcoinuser;
-
-    /**
-     * The raw transaction id
-     *
-     * @var string
-     */
-    protected $rawtx;
-
-    /**
-     * The signed raw transaction id
-     *
-     * @var string
-     */
-    protected $signedrawtx;
-
-    /**
-     * The Transaction id of a sended transaction
-     *
-     * @var string
-     */
-    protected $txid;
-
-    /**
-     * The outgoing transactions
-     *
-     * @var array
-     */
-    protected $txout;
-
-    /**
-     * Is the unspent transaction locked
-     * It is set after the created function
+     * Lock the unspent transactions after create
      *
      * @var boolean
      */
     protected $locked;
 
     /**
+     * The total transaction amount, without fees and change
+     *
+     * @var double
+     */
+    protected $amount;
+
+    /**
+     * The amount of money to send back
+     *
+     * @var double
+     */
+    protected $change;
+
+    /**
+     * The total transaction amount, so with change and fees
+     *
+     * @var double
+     */
+    protected $transactionamount;
+
+    /**
+     * The raw tx
+     * This is created after calling the create function
+     *
+     * @var string
+     */
+    protected $rawtx;
+
+    /**
+     * The signed raw tx
+     * This is created after calling the sign function
+     *
+     * @var string
+     */
+    protected $signedrawtx;
+
+    /**
+     * The outgoing unspent transactions
+     * This is created after the transaction is created
+     *
+     * @var mixed[]
+     */
+    protected $txout;
+
+    /**
+     * The transaction id of the transaction
+     * This is created after the transaction id sent
+     *
+     * @var string
+     */
+    protected $txid;
+
+    /**
      * Instantiate a new Transaction instance.
      *
-     * @param $bitcoinser Jwz104\BitcoinAccounts\Models\BitcoinUser The bitcoin user
-     * @param $address string The destination address
-     * @param $amount double The amount of bitcoins
-     * @param $fee double The amount of fee, When null or empty use the fee of the config file
+     * @param $destinations Jwz104\BitcoinAccounts\Transfer\TransactionLine[] The destinations
      * @return void
      */
-    public function __construct(BitcoinUser $bitcoinuser, $address, $amount, $fee = null)
+    public function __construct($transactionlines = [])
     {
-        if ($fee == null) {
-            $fee = config('bitcoinaccounts.bitcoin.transaction-fee');
+        foreach ($transactionlines as $transactionline) {
+            if (!($transactionline instanceof TransactionLine)) {
+                throw new InvalidTransactionException();
+            }
+            $transactionline->check();
         }
-        $this->bitcoinuser = $bitcoinuser;
-        $this->address = $address;
-        $this->amount = $amount;
-        $this->fee = $fee;
 
-        $this->check();
+        $this->transactionlines = $transactionlines;
     }
 
     /**
-     * Check if the transaction is valid and if the balance is high enough
-     *
-     * @throws Jwz104\BitcoinAccounts\Exceptions\LowBalanceException Thrown when balance is to low
-     * @throws Jwz104\BitcoinAccounts\Exceptions\InvalidTransactionException Thrown when transaction is invalid
-     * @return void
+     * Add a destination
+     * 
+     * @param $destination Jwz104\BitcoinAccounts\Transfer\TransactionLine The destination
      */
-    protected function check()
+    public function addLine(TransactionLine $transactionline)
     {
-        //If the transation doesn't contain any bitcoins throw exception
-        if ($this->amount <= 0 && $this->fee <= 0) {
-            throw new InvalidTransactionException();
-        }
-        if ($this->amount < 0 || $this->fee < 0) {
-            throw new InvalidTransactionException();
-        }
-
-        //Throw low balance exception when balance is to low
-        if ($this->bitcoinuser->balance() < ($this->amount+$this->fee)) {
-            throw new LowBalanceException($this->bitcoinuser);
-        }
+        $this->transactionlines[] = $transactionline;
     }
 
     /**
-     * Create the transaction and return the raw transaction
-     * Return null if the transaction doesn't contain any bitcoins
+     * Set the unspent outgoing transactions
      *
-     * @param $lockunspent boolean Lock the select unspent transactions
+     * @return void
+     */
+
+    /**
+     * Create the transaction
+     *
+     * @param $locked boolean
      * @return string
      */
-    public function create($lockunspent = true)
+    public function create($locked = true)
     {
-        $this->check();
         $this->locked = $lockunspent;
+        $this->calculate();
+        $this->setTxout();
 
+        //Set the change transaction
+        $transactions = [$this->getChangeAddress() => $this->change];
+
+        //Add the other transactions
+        foreach ($this->transactionlines as $transactionline) {
+            $transactions[$transactionline->address] = $transactionline->amount;
+        }
+
+        $rawtx = BitcoinAccounts::createRawTransaction($this->txout, [$destination]);
+
+        if ($this->locked) {
+            BitcoinAccounts::lockUnspent($this->txout);
+        }
+
+        return ($this->rawtx = $rawtx);
+    }
+
+    /**
+     * Calculate the transaction totals, fee and txout
+     *
+     * @return void
+     */
+    protected function calculate()
+    {
+        $fee = 0;
+        $amount = 0;
+        //Loop though the transactionlines to get the amount and fee
+        foreach ($this->transactionlines as $transactionline) {
+            $fee += $transactionline->fee;
+            $amount += $transactionline->amount;
+        }
+        $this->fee = $fee;
+        $this->amount = $amount;
+    }
+
+    /**
+     * Set the unspent transactions needed for the transaction
+     *
+     * @return void
+     */
+    protected function setTxout()
+    {
         //Get all the unspent transactions
         $unspent = collect(BitcoinAccounts::listUnspent())
             ->where('spendable', true)
@@ -150,8 +180,6 @@ class Transaction {
         $txout = [];
         $amount = ($this->amount+$this->fee);
         $total = 0;
-
-        //Get the required amount of txout to create the transaction
         foreach ($unspent as $transaction) {
             $txout[] = [
                 'txid' => $transaction['txid'], 
@@ -164,7 +192,8 @@ class Transaction {
                 break;
             }
         }
-        $this->txout = $txout;
+
+        $this->transactionamount = $total;
 
         //Check if there is enough balance in unspent
         if ($amount > 0) {
@@ -172,26 +201,36 @@ class Transaction {
         }
 
         //Calculate what is paid to much
-        $change = $total - ($this->amount+$this->fee);
+        $this->change = $this->transactionamount - ($this->amount+$this->fee);
+        $this->txout = $txout;
+    }
 
-        $this->transactionamount = $total;
-
-        //This is the address where the change goes, it is not linked to an account
+    /**
+     * Get an address to send to change to
+     * An address without an user attached
+     *
+     * @return string
+     */
+    public function getChangeAddress()
+    {
         $changeaddress = BitcoinAddress::where('bitcoin_user_id', null)->first();
         if ($changeaddress == null) {
             $changeaddress = BitcoinAccounts::createAddress();
         } else {
             $changeaddress = $changeaddress->address;
         }
+        return $changeaddress;
+    }
 
-        //Create the raw transaction
-        $rawtx = BitcoinAccounts::createRawTransaction($this->txout, [$this->address => $this->amount, $changeaddress => $change]);
 
-        if ($this->locked) {
-            BitcoinAccounts::lockUnspent($this->txout);
-        }
-
-        return ($this->rawtx = $rawtx);
+    /**
+     * Is the transaction created
+     *
+     * @return boolean
+     */
+    public function isCreated()
+    {
+        return ($this->rawtx != null);
     }
 
     /**
@@ -239,27 +278,29 @@ class Transaction {
      */
     public function send()
     {
-        $this->check();
         if ($this->signedrawtx == null) {
             return null;
         }
 
+        //Check for balances before sending the transaction
+        foreach ($this->transactionlines as $transactionline) {
+            $transactionline->check();
+        }
+
         $txid = ($this->txid = BitcoinAccounts::sendRawTransaction($this->signedrawtx));
-        
 
-        //Create the transaction
-        $bitcointransaction = new BitcoinTransaction();
+        foreach ($this->transactionlines as $transactionline) {
+            $bitcointransaction = new BitcoinTransaction();
 
-        $bitcointransaction->bitcoin_user_id = $this->bitcoinuser->id;
-        $bitcointransaction->txid = $txid;
-        $bitcointransaction->amount = $this->amount;
-        $bitcointransaction->fee = $this->fee;
-        $bitcointransaction->type = 'send';
-        $bitcointransaction->other_address = $this->address;
+            $bitcointransaction->bitcoin_user_id = $transactionline->bitcoinuser->id;
+            $bitcointransaction->txid = $txid;
+            $bitcointransaction->amount = $transactionline->amount;
+            $bitcointransaction->fee = $transactionline->fee;
+            $bitcointransaction->type = 'send';
+            $bitcointransaction->other_address = $transactionline->address;
 
-        $bitcointransaction->save();
-
-        //The change transaction doesn't have to be created because it isn't attached to an user
+            $bitcointransaction->save();
+        }
 
         return $txid;
     }
