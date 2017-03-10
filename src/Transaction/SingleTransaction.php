@@ -5,6 +5,8 @@ namespace Jwz104\BitcoinAccounts\Transaction;
 use Jwz104\BitcoinAccounts\Transaction\Transaction;
 use Jwz104\BitcoinAccounts\Transaction\TransactionLine;
 
+use Jwz104\BitcoinAccounts\Models\BitcoinUser;
+
 class SingleTransaction extends Transaction {
 
     /**
@@ -18,7 +20,7 @@ class SingleTransaction extends Transaction {
      */
     public function __construct(BitcoinUser $bitcoinuser, $address, $amount, $fee = null)
     {
-        $transactionline = new TransactionLine($bitcoinuser, $addres, $amount, $fee);
+        $transactionline = new TransactionLine($bitcoinuser, $address, $amount, $fee);
         parent::__construct([$transactionline]);
     }
 }
