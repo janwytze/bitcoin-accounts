@@ -68,7 +68,7 @@ class TransactionLine {
      * @throws Jwz104\BitcoinAccounts\Exceptions\InvalidTransactionException Thrown when transaction is invalid
      * @return void
      */
-    protected function check()
+    public function check()
     {
         //If the transation doesn't contain any bitcoins throw exception
         if ($this->amount <= 0 && $this->fee <= 0) {
