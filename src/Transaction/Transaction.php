@@ -143,7 +143,7 @@ class Transaction {
             $transactions[$transactionline->address] = $transactionline->amount;
         }
 
-        $rawtx = BitcoinAccounts::createRawTransaction($this->txout, [$destination]);
+        $rawtx = BitcoinAccounts::createRawTransaction($this->txout, $transactions);
 
         if ($this->locked) {
             BitcoinAccounts::lockUnspent($this->txout);
