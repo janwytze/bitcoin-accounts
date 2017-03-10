@@ -3,6 +3,7 @@
 namespace Jwz104\BitcoinAccounts\Transaction;
 
 use Jwz104\BitcoinAccounts\Models\BitcoinUser;
+use Jwz104\BitcoinAccounts\Models\BitcoinHoldTransaction;
 
 use Jwz104\BitcoinAccounts\Exceptions\LowBalanceException;
 use Jwz104\BitcoinAccounts\Exceptions\LowUnspentException;
@@ -39,6 +40,13 @@ class TransactionLine {
     public $fee;
 
     /**
+     * The hold transaction id, this is to do the balance check right
+     *
+     * @var integer
+     */
+    public $holdid;
+
+    /**
      * Instantiate a new Transaction instance.
      *
      * @param $bitcoinuser Jwz104\BitcoinAccounts\Models\BitcoinUser The from user;
@@ -47,7 +55,7 @@ class TransactionLine {
      * @param $fee double The amount of fee to send;
      * @return void
      */
-    public function __construct(BitcoinUser $bitcoinuser, $address, $amount, $fee)
+    public function __construct(BitcoinUser $bitcoinuser, $address, $amount, $fee, $holdid = null)
     {
         if ($fee == null) {
             $fee = config('bitcoinaccounts.bitcoin.transaction-fee');
@@ -57,6 +65,7 @@ class TransactionLine {
         $this->address = $address;
         $this->amount = $amount;
         $this->fee = $fee;
+        $this->holdid = $holdid;
 
         $this->check();
     }
@@ -78,8 +87,19 @@ class TransactionLine {
             throw new InvalidTransactionException();
         }
 
+        if ($this->holdid != null) {
+            $holdtransaction = BitcoinHoldTransaction::find($this->holdid);
+            if ($holdtransaction != null) {
+                $holdamount = ($holdtransaction->amount+$holdtransaction->fee);
+            } else {
+                $holdamount = 0;
+            }
+        } else {
+            $holdamount = 0;
+        }
+
         //Throw low balance exception when balance is to low
-        if ($this->bitcoinuser->balance() < ($this->amount+$this->fee)) {
+        if ($this->bitcoinuser->balance() < (($this->amount+$this->fee)) - $holdamount) {
             throw new LowBalanceException($this->bitcoinuser);
         }
     }

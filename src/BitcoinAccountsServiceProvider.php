@@ -12,7 +12,8 @@ class BitcoinAccountsServiceProvider extends ServiceProvider
      * @var array
      */
     protected $commands = [
-        'Jwz104\BitcoinAccounts\Console\Commands\LoadTransactionsCommand'
+        'Jwz104\BitcoinAccounts\Console\Commands\LoadTransactionsCommand',
+        'Jwz104\BitcoinAccounts\Console\Commands\SendHoldTransactionsCommand',
     ];
 
     /**

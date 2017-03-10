@@ -7,8 +7,10 @@ use Jwz104\BitcoinAccounts\Exceptions;
 use Jwz104\BitcoinAccounts\Models\BitcoinUser;
 use Jwz104\BitcoinAccounts\Models\BitcoinAddress;
 use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
+use Jwz104\BitcoinAccounts\Models\BitcoinHoldTransaction;
 
 use Jwz104\BitcoinAccounts\Transaction\SingleTransaction;
+use Jwz104\BitcoinAccounts\Transaction\HoldTransaction;
 
 use Jwz104\BitcoinAccounts\Exceptions\CommandFailedException;
 use Jwz104\BitcoinAccounts\Exceptions\LowBalanceException;
@@ -237,13 +239,29 @@ class BitcoinAccounts {
      * @param $fee double The amount of fee, leave empty for default amount
      * @return string
      */
-    public function sendToAddress(BitcoinUser $user, $address, $amount, $fee = null)
+    public function sendToAddress(BitcoinUser $user, $address, $amount, $fee = null, $holdid = null)
     {
-        $transaction = new SingleTransaction($user, $address, $amount, $fee);
+        $transaction = new SingleTransaction($user, $address, $amount, $fee, $holdid);
 
         $transaction->create();
         $transaction->sign();
         return $transaction->send();
+    }
+
+    /**
+     * Send the bitcoin to an address using a hold transaction
+     *
+     * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser From user
+     * @param $type string The transaction type, "mass" or "single"
+     * @param $address Jwz104\BitcoinAccounts\Models\BitcoinAddress To address
+     * @param $amount double The amount of bitcoins
+     * @param $fee double The amount of fee, leave empty for default amount
+     * @return void
+     */
+    public function holdSendToAddress(BitcoinUser $user, $type, $address, $amount, $fee = null)
+    {
+        $transaction = new HoldTransaction($user, $type, $address, $amount, $fee);
+        $transaction->send();
     }
 
     /**

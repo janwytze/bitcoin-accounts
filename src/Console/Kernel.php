@@ -5,6 +5,7 @@ use App\Console\Kernel as ConsoleKernel;
 use Illuminate\Console\Scheduling\Schedule;
 
 use Jwz104\BitcoinAccounts\Jobs\LoadTransactionsJob;
+use Jwz104\BitcoinAccounts\Jobs\SendHoldTransactionsJob;
 
 class Kernel extends ConsoleKernel
 {
@@ -22,5 +23,10 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             dispatch(new LoadTransactionsJob());
         })->everyMinute();
+
+        //send the transactions every 10 minutes
+        $schedule->call(function () {
+            dispatch(new SendHoldTransactionsJob());
+        })->everyTenMinutes();
     }
 }
