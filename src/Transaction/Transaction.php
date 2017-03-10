@@ -1,12 +1,17 @@
 <?php
 
-namespace Jwz104\BitcoinAccounts\Transactions;
+namespace Jwz104\BitcoinAccounts\Transaction;
 
 use Jwz104\BitcoinAccounts\Models\BitcoinUser;
 use Jwz104\BitcoinAccounts\Models\BitcoinAddress;
 use Jwz104\BitcoinAccounts\Models\BitcoinTransaction;
 
-use Jwz104\BitcoinAccounts\Transfer\TransactionLine;
+use Jwz104\BitcoinAccounts\Transaction\TransactionLine;
+
+use Jwz104\BitcoinAccounts\Exceptions\InvalidTransactionException;
+use Jwz104\BitcoinAccounts\Exceptions\LowUnspentException;
+
+use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
 
 class Transaction {
 
@@ -124,7 +129,7 @@ class Transaction {
      * @param $locked boolean
      * @return string
      */
-    public function create($locked = true)
+    public function create($lockunspent = true)
     {
         $this->locked = $lockunspent;
         $this->calculate();
@@ -221,7 +226,6 @@ class Transaction {
         }
         return $changeaddress;
     }
-
 
     /**
      * Is the transaction created
