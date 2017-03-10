@@ -4,6 +4,8 @@ namespace Jwz104\BitcoinAccounts\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use DB;
+
 use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
 
 class BitcoinUser extends Model
@@ -51,24 +53,7 @@ class BitcoinUser extends Model
      */
     public function balance()
     {
-        $balance = 0;
-
-        foreach ($this->transactions as $transaction) {
-            if ($transaction->type == 'send') {
-                //Also add fee
-                $balance += ($transaction->amount + $transaction->fee);
-            } elseif ($transaction->type == 'receive') {
-                $balance += ($transaction->amount);
-            } elseif ($transaction->type == 'account') {
-                //Don't use transactions to same account
-                if ($transaction->bitcoin_user_id == $this->id && $transaction->other_bitcoin_user_id != $this->id) {
-                    $balance -= $transaction->amount;
-                } elseif ($transaction->other_bitcoin_user_id == $this->id && $transaction->bitcoin_user_id != $this->id) {
-                    $balance += $transaction->amount;
-                }
-            }
-        }
-
+        $balance = DB::select('SELECT GetBitcoinUserBalance(?) AS balance;', [$this->id])[0]->balance;
         return $balance;
     }
 
