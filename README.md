@@ -115,8 +115,6 @@ List the transactions
 
 This package is still very unstable and a lot of thinks have to be added
 
-* Multiple transfers in one transfer
 * Transaction cancelling(When a transaction isn't confirmed you can cancel it)
 * Configuring the cronjob
-* Configuring the minimum confirmations
 * Making the package more stable
