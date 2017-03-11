@@ -65,27 +65,83 @@ class LoadTransactionsJob implements ShouldQueue
     {
         $changed = false;
         foreach ($transactions as $transaction) {
-            $duplicate = BitcoinTransaction::join('bitcoin_addresses', 'bitcoin_addresses.id', '=', 'bitcoin_transactions.bitcoin_address_id')
+            $duplicate = BitcoinTransaction::selectRaw('bitcoin_transactions.*, bitcoin_addresses.address')->join('bitcoin_addresses', 'bitcoin_addresses.id', '=', 'bitcoin_transactions.bitcoin_address_id')
                 ->where('bitcoin_transactions.txid', $transaction['txid'])
                 ->where('bitcoin_addresses.address', $transaction['address'])
                 ->first();
-            if ($duplicate == null) {
-                //Check if the transaction address is registered, and if it belongs to an user
-                $bitcoinaddress = BitcoinAddress::where('address', $transaction['address'])->whereNotNull('bitcoin_user_id')->first();
-                if ($bitcoinaddress != null) {
-                    $bitcointransaction = new BitcoinTransaction();
-
-                    $bitcointransaction->bitcoin_user_id = $bitcoinaddress->bitcoin_user_id;
-                    $bitcointransaction->bitcoin_address_id = $bitcoinaddress->id;
-                    $bitcointransaction->txid = $transaction['txid'];
-                    $bitcointransaction->amount = $transaction['amount'];
-                    $bitcointransaction->type = 'receive';
-
-                    $bitcointransaction->save();
-                    $changed = true;
-                }
+            if ($this->handleTransaction($duplicate, $transaction)) {
+                $changed = true;
             }
         }
         return $changed;
+    }
+
+    /**
+     * Handle the transaction and return true if changed
+     *
+     * @param $bitcointransaction Jwz104\BitcoinAccounts\Models\BitcoinTransaction The duplicate transaction
+     * @param $transaction mixed[] The transaction response from bitcoind
+     * @return boolean
+     */
+    protected function handleTransaction($bitcointransaction, $transaction)
+    {
+        if ($bitcointransaction == null) {
+            //Check if the transaction address is registered, and if it belongs to an user
+            $bitcoinaddress = BitcoinAddress::where('address', $transaction['address'])->whereNotNull('bitcoin_user_id')->first();
+            if ($bitcoinaddress != null) {
+                $this->createTransaction($transaction, $bitcoinaddress);
+                return true;
+            }
+        } else {
+            if (!$bitcointransaction->confirmed) {
+                if ($transaction['confirmations'] >= 1) {
+                    if ($this->compairTransaction($transaction, $bitcointransaction)) {
+                        $bitcointransaction->confirmed = true;
+                        $bitcointransaction->save();
+                    } else {
+                        $bitcointransaction->delete();
+                    }
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Create the transaction
+     *
+     * @param $transaction mixed[] The transaction
+     * @param $bitcoinaddress Jwz104\BitcoinAccounts\Models\BitcoinAddress The bitcoin address
+     * @return void
+     */
+    protected function createTransaction($transaction, $bitcoinaddress)
+    {
+        $bitcointransaction = new BitcoinTransaction();
+
+        $bitcointransaction->bitcoin_user_id = $bitcoinaddress->bitcoin_user_id;
+        $bitcointransaction->bitcoin_address_id = $bitcoinaddress->id;
+        $bitcointransaction->txid = $transaction['txid'];
+        $bitcointransaction->amount = $transaction['amount'];
+        $bitcointransaction->type = 'receive';
+        $bitcointransaction->confirmed = ($transaction['confirmations'] >= 1 ? true : false);
+
+        $bitcointransaction->save();
+    }
+
+    /**
+     * Compair a database and a bitcoind transaction, this is to prevent double spending
+     * Return true if it is OK
+     *
+     * @param $transaction mixed[] The transaction
+     * @param $bitcointransaction Jwz104\BitcoinAccounts\Models\BitcoinTransaction The unconfirmed bitcoin transaction
+     * @return boolean
+     */
+    protected function compairTransaction($transaction, BitcoinTransaction $bitcointransaction)
+    {
+        if ($transaction['txid'] != $bitcointransaction->txid || $transaction['amount'] != $bitcointransaction->amount || $transaction['address'] != $bitcointransaction->address) {
+            return false;
+        }
+        return true;
     }
 }

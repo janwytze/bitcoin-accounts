@@ -24,6 +24,7 @@ class CreateBitcoinTransactionsTable extends Migration
             $table->enum('type', ['send', 'receive', 'account']);
             $table->string('other_address')->nullable();
             $table->integer('other_bitcoin_user_id')->unsigned()->nullable();
+            $table->boolean('confirmed');
 
             $table->timestamps();
 
