@@ -94,7 +94,7 @@ class LoadTransactionsJob implements ShouldQueue
             }
         } else {
             if (!$bitcointransaction->confirmed) {
-                if ($transaction['confirmations'] >= 1) {
+                if ($transaction['confirmations'] >= config('bitcoinaccounts.bitcoin.confirmations')) {
                     if ($this->compairTransaction($transaction, $bitcointransaction)) {
                         $bitcointransaction->confirmed = true;
                         $bitcointransaction->save();
@@ -124,7 +124,7 @@ class LoadTransactionsJob implements ShouldQueue
         $bitcointransaction->txid = $transaction['txid'];
         $bitcointransaction->amount = $transaction['amount'];
         $bitcointransaction->type = 'receive';
-        $bitcointransaction->confirmed = ($transaction['confirmations'] >= 1 ? true : false);
+        $bitcointransaction->confirmed = ($transaction['confirmations'] >= config('bitcoinaccounts.bitcoin.confirmations') ? true : false);
 
         $bitcointransaction->save();
     }
