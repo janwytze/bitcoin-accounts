@@ -14,6 +14,7 @@ use Jwz104\BitcoinAccounts\Transaction\HoldTransaction;
 
 use Jwz104\BitcoinAccounts\Exceptions\CommandFailedException;
 use Jwz104\BitcoinAccounts\Exceptions\LowBalanceException;
+use Jwz104\BitcoinAccounts\Exceptions\InvalidAddressException;
 
 class BitcoinAccounts {
 
@@ -234,13 +235,16 @@ class BitcoinAccounts {
      * the amount of fee defined in the config file will be added to the amount
      *
      * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser From user
-     * @param $address Jwz104\BitcoinAccounts\Models\BitcoinAddress To address
+     * @param $address string To address
      * @param $amount double The amount of bitcoins
      * @param $fee double The amount of fee, leave empty for default amount
      * @return string
      */
     public function sendToAddress(BitcoinUser $user, $address, $amount, $fee = null, $holdid = null)
     {
+        if (!$this->validateAddress($address)) {
+            throw new InvalidAddressException($address);
+        }
         $transaction = new SingleTransaction($user, $address, $amount, $fee, $holdid);
 
         $transaction->create();
@@ -253,13 +257,16 @@ class BitcoinAccounts {
      *
      * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser From user
      * @param $type string The transaction type, "mass" or "single"
-     * @param $address Jwz104\BitcoinAccounts\Models\BitcoinAddress To address
+     * @param $address string To address
      * @param $amount double The amount of bitcoins
      * @param $fee double The amount of fee, leave empty for default amount
      * @return void
      */
     public function holdSendToAddress(BitcoinUser $user, $type, $address, $amount, $fee = null)
     {
+        if (!$this->validateAddress($address)) {
+            throw new InvalidAddressException($address);
+        }
         $transaction = new HoldTransaction($user, $type, $address, $amount, $fee);
         $transaction->send();
     }
@@ -294,6 +301,9 @@ class BitcoinAccounts {
      */
     public function emptyAccountToAddress(BitcoinUser $user, $address, $fee = null)
     {
+        if ($this->validateAddress($address) {
+            throw new InvalidAddressException($address);
+        }
         if ($fee == null) {
             $fee = config('bitcoinaccounts.bitcoin.transaction-fee');
         }
