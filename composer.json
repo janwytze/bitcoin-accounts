@@ -12,7 +12,8 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "nbobtc/bitcoind-php": "^2.0"
+        "nbobtc/bitcoind-php": "^2.0",
+        "illuminate/support": ">=5.3"
     },
     "autoload": {
         "psr-4": {
