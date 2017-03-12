@@ -310,7 +310,7 @@ class Transaction {
             $bitcointransaction->amount = $transactionline->amount;
             $bitcointransaction->fee = $transactionline->fee;
             $bitcointransaction->type = 'send';
-            $bitcointransaction->other_address = $transactionline->address;
+            $bitcointransaction->to_address = $transactionline->address;
 
             $bitcointransaction->save();
         }

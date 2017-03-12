@@ -15,7 +15,7 @@ class BitcoinTransaction extends Model
         'amount',
         'fee',
         'type',
-        'other_address',
+        'to_address',
         'other_bitcoin_user_id',
     ];
 
