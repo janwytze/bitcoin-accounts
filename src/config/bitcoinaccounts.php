@@ -42,5 +42,20 @@ return [
     'bitcoin' => [
         'transaction-fee' => '0.0001',
         'confirmations' => 1,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Cronjob settings
+    |--------------------------------------------------------------------------
+    |
+    | Here you can change the cronjob
+    |
+    | load: The cron settings for the transaction loading
+    | send: The cron settings for the transaction sending
+    */
+    'cronjob' => [
+        'load' => '* * * * *',
+        'send' => '*/10 * * * *',
     ]
 ];

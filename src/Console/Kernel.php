@@ -22,11 +22,11 @@ class Kernel extends ConsoleKernel
         //Load the transactions every minute
         $schedule->call(function () {
             dispatch(new LoadTransactionsJob());
-        })->everyMinute();
+        })->cron(config('bitcoinaccounts.cronjob.load'));
 
         //send the transactions every 10 minutes
         $schedule->call(function () {
             dispatch(new SendHoldTransactionsJob());
-        })->everyTenMinutes();
+        })->cron(config('bitcoinaccounts.cronjob.send'));
     }
 }
