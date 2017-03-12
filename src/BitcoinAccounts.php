@@ -433,6 +433,17 @@ class BitcoinAccounts {
     }
 
     /**
+     * Get a raw transaction
+     *
+     * @param $txid string The transaction id
+     * @return mixed[]
+     */
+    public function getRawTransaction($txid)
+    {
+        return $this->executeCommand('getrawtransaction', $txid);
+    }
+
+    /**
      * Decode a raw transaction
      *
      * @param $rawtx string The transaction
