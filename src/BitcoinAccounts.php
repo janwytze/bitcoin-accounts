@@ -301,7 +301,7 @@ class BitcoinAccounts {
      */
     public function emptyAccountToAddress(BitcoinUser $user, $address, $fee = null)
     {
-        if ($this->validateAddress($address) {
+        if ($this->validateAddress($address)) {
             throw new InvalidAddressException($address);
         }
         if ($fee == null) {
