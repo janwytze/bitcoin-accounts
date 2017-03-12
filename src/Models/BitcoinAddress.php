@@ -30,7 +30,7 @@ class BitcoinAddress extends Model
      */
     public function user()
     {
-        return $this->belongsTo('Jwz104\BitcoinAccounts\BitcoinUser', 'bitcoin_user_id', 'id');
+        return $this->belongsTo('Jwz104\BitcoinAccounts\Models\BitcoinUser', 'bitcoin_user_id', 'id');
     }
 
     /**
@@ -40,6 +40,6 @@ class BitcoinAddress extends Model
      */
     public function transactions()
     {
-        return $this->hasMany('Jwz104\BitcoinAccounts\BitcoinTransaction', 'bitcoin_address_id', 'id');
+        return $this->hasMany('Jwz104\BitcoinAccounts\Models\BitcoinTransaction', 'bitcoin_address_id', 'id');
     }
 }
