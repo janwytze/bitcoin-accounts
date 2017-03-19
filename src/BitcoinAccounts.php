@@ -44,17 +44,14 @@ class BitcoinAccounts {
     {
         $connectionconfig = config('bitcoinaccounts.connection');
 
-        $url = [];
-        $url[] = 'http://';
-        $url[] = $connectionconfig['username'];
-        $url[] = ':';
-        $url[] = $connectionconfig['password'];
-        $url[] = '@';
-        $url[] = $connectionconfig['host'];
-        $url[] = ':';
-        $url[] = $connectionconfig['port'];
+        $url = sprintf('http://%s:%s@%s:%s',
+            $connectionconfig['username'],
+            $connectionconfig['password'],
+            $connectionconfig['host'],
+            $connectionconfig['port']
+        );
 
-        return implode($url);
+        return $url;
     }
 
     /**
@@ -489,3 +486,4 @@ class BitcoinAccounts {
         return $transactions->where('category', '!=', 'move')->where('confirmations', '>=', config('bitcoinaccounts.bitcoin.confirmations'));
     }
 }
+
