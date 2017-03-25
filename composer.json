@@ -10,7 +10,6 @@
             "email": "jwzuid@live.nl"
         }
     ],
-    "minimum-stability": "stable",
     "require": {
         "nbobtc/bitcoind-php": "^2.0",
         "illuminate/support": ">=5.3"
@@ -19,5 +18,6 @@
         "psr-4": {
             "Jwz104\\BitcoinAccounts\\": "src/"
         }
-    }
+    },
+    "minimum-stability": "stable"
 }
