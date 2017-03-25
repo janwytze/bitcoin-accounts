@@ -2,7 +2,7 @@
     "name": "jwz104/bitcoin-accounts",
     "description": "A bitcoin account system",
     "type": "library",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "license": "MIT",
     "authors": [
         {
