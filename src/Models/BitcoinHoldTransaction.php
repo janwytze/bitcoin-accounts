@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class BitcoinHoldTransaction extends Model
 {
-    protected $table = 'bitcoin_hold_transactions';
-
     protected $fillable = [
         'bitcoin_user_id',
         'address',

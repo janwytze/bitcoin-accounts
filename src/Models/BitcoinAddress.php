@@ -7,13 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class BitcoinAddress extends Model
 {
     /**
-     * The table name
-     *
-     * @var string
-     */
-    protected $table = 'bitcoin_addresses';
-
-    /**
      * The fillable columns
      *
      * @var string[]

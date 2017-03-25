@@ -11,13 +11,6 @@ use Jwz104\BitcoinAccounts\Facades\BitcoinAccounts;
 class BitcoinUser extends Model
 {
     /**
-     * The table name
-     *
-     * @var string
-     */
-    protected $table = 'bitcoin_users';
-
-    /**
      * The fillable columns
      *
      * @var string[]
