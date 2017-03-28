@@ -319,7 +319,7 @@ class BitcoinAccounts {
      *
      * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser The user
      * @param $fromuser Jwz104\BitcoinAccounts\Models\BitcoinUser The user
-     * @return string
+     * @return bool
      */
     public function emptyAccountToUser(BitcoinUser $user, BitcoinUser $touser)
     {
