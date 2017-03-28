@@ -39,6 +39,7 @@ class SendHoldTransactionsJob implements ShouldQueue
     {
         $massholdtransactions = BitcoinHoldTransaction::where('type', 'mass')->where('reserved', false)->get();
         $masstransaction = new Transaction();
+        //Create the mass transactions
         foreach ($massholdtransactions as $massholdtransaction) {
             $transactionline = new TransactionLine($massholdtransaction->user, $massholdtransaction->address, $massholdtransaction->amount, $massholdtransaction->fee, $massholdtransaction->id);
             $masstransaction->addLine($transactionline);
@@ -46,6 +47,7 @@ class SendHoldTransactionsJob implements ShouldQueue
             $massholdtransaction->save();
         }
 
+        //Send the masstransaction
         if (isset($transactionline)) {
             try {
                 $masstransaction->create();
@@ -59,9 +61,19 @@ class SendHoldTransactionsJob implements ShouldQueue
             }
         }
 
+        //Handle the single transactions
         $singleholdtransactions = BitcoinHoldTransaction::where('type', 'single')->where('reserved', false)->get();
         foreach ($singleholdtransactions as $singleholdtransaction) {
-            //BitcoinAccounts::sendToAddress($singleholdtransaction->user, $singleholdtransaction->address, $singleholdtransaction->amount, $singleholdtransaction->fee, $singleholdtransaction->id);;
+            try {
+                $singleholdtransaction->reserved = true;
+                $singleholdtransaction->save();
+                BitcoinAccounts::sendToAddress($singleholdtransaction->user, $singleholdtransaction->address, $singleholdtransaction->amount, $singleholdtransaction->fee);
+            } catch (\Exception $e) {
+                $singleholdtransaction->reserved = false;
+                $singleholdtransaction->save();
+                Log::Error($e->getMessage());
+                continue;
+            }
             $singleholdtransaction->delete();
         }
     }
