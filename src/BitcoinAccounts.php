@@ -137,7 +137,7 @@ class BitcoinAccounts {
      * Create an address for an account and return the id
      *
      * @param $user Jwz104\BitcoinAccounts\Models\BitcoinUser The user
-     * @return bool
+     * @return Jwz104\BitcoinAccounts\Models\BitcoinAddress
      */
     public function createAddress(BitcoinUser $user = null)
     {
@@ -150,7 +150,7 @@ class BitcoinAccounts {
 
         $bitcoinaddress->save();
 
-        return $bitcoinaddress->id;
+        return $bitcoinaddress;
     }
 
     /**
@@ -237,7 +237,7 @@ class BitcoinAccounts {
      * @param $fee double The amount of fee, leave empty for default amount
      * @return string
      */
-    public function sendToAddress(BitcoinUser $user, $address, $amount, $fee = null, $holdid = null)
+    public function sendToAddress(BitcoinUser $user, $address, $amount, $fee = null)
     {
         if (!$this->validateAddress($address)) {
             throw new InvalidAddressException($address);
