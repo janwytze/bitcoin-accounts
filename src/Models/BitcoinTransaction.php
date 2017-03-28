@@ -19,16 +19,16 @@ class BitcoinTransaction extends Model
 
     public function user()
     {
-        return $this->belongsTo('Jwz104\BitcoinAccounts\Models\BitcoinUser', 'bitcoin_user_id', 'id');
+        return $this->belongsTo(BitcoinUser::class);
     }
 
     public function other_user()
     {
-        return $this->belongsTo('Jwz104\BitcoinAccounts\Models\BitcoinUser', 'other_bitcoin_user_id', 'id');
+        return $this->belongsTo(BitcoinUser::class);
     }
 
     public function address()
     {
-        return $this->belongsTo('Jwz104\BitcoinAccounts\Models\BitcoinAddress', 'bitcoin_address_id', 'id');
+        return $this->belongsTo(BitcoinAddress::class);
     }
 }

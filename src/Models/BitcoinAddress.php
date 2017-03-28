@@ -33,6 +33,6 @@ class BitcoinAddress extends Model
      */
     public function transactions()
     {
-        return $this->hasMany('Jwz104\BitcoinAccounts\Models\BitcoinTransaction', 'bitcoin_address_id', 'id');
+        return $this->hasMany(BitcoinTransaction::class);
     }
 }
