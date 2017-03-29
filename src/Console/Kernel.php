@@ -1,4 +1,5 @@
 <?php
+
 namespace Jwz104\BitcoinAccounts\Console;
 
 use App\Console\Kernel as ConsoleKernel;
